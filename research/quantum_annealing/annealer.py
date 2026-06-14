@@ -167,18 +167,22 @@ class MaterialAnnealer:
                     # Compute delta energy for flipping bit flip_idx
                     s_i = state[flip_idx]
                     delta = 0.0
+                    # Q is symmetric (Q[i,j]==Q[j,i]==coupling), so the coupling
+                    # energy between flip_idx and j2 is Q[flip_idx, j2] ONCE — do
+                    # not add Q[j2, flip_idx] too, or couplings get double-weighted
+                    # relative to the diagonal and SA optimizes the wrong objective.
                     if s_i == 0:
                         # Flipping 0 -> 1
                         delta = Q[flip_idx, flip_idx]
                         for j2 in range(n):
                             if j2 != flip_idx and state[j2]:
-                                delta += Q[flip_idx, j2] + Q[j2, flip_idx]
+                                delta += Q[flip_idx, j2]
                     else:
                         # Flipping 1 -> 0
                         delta = -Q[flip_idx, flip_idx]
                         for j2 in range(n):
                             if j2 != flip_idx and state[j2]:
-                                delta -= Q[flip_idx, j2] + Q[j2, flip_idx]
+                                delta -= Q[flip_idx, j2]
 
                     # Metropolis acceptance
                     if delta < 0 or rng.random() < np.exp(-delta / max(temp, 1e-30)):

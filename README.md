@@ -64,15 +64,15 @@ This is an early lab. What is actually working vs. scaffolded today:
 | Electronic structure — graphene tight-binding (Dirac cones, v_F, DOS) | ✅ implemented + **validated** vs closed form (7/7) |
 | General N×N tight-binding solver (CPU/GPU k-space) | ✅ implemented + **validated** (reproduces graphene; GPU==CPU, 4/4) |
 | EM simulation — 1-D FDTD (Yee + PML, Courant) | ✅ implemented + **validated** vs physics refs (3/3) |
-| Reservoir computing — leaky-integrator ESN | ✅ implemented, runnable |
-| (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented, runnable |
+| Reservoir computing — leaky-integrator ESN | ✅ implemented + **validated** (NARMA-10 NRMSE, spectral radius, 2/2) |
+| (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented + **validated** (finds brute-force optimum; a delta-energy bug was caught & fixed, 2/2) |
 | Rust core — `Material`/`Experiment` types, SQLite persistence | ✅ implemented |
 | Compatibility engine (Rust, `aether-core::compatibility`, 6 dims) | ✅ implemented, ⚠️ **not yet wired to CLI/FFI** |
 | `compat compute` / `compat matrix` (CLI) | ⚠️ prints only — does not call the engine yet |
 | PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
 | Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
 | ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
-| Validation harness | 🟡 started — FDTD (3/3) + graphene TB (5/5); ESN/SA/Rust pending |
+| Validation harness | 🟢 18 tests, 5 modules (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2); Rust unit tests pending |
 
 **First validated results** (fixed seeds):
 - FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at
