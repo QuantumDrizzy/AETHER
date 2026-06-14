@@ -61,7 +61,8 @@ This is an early lab. What is actually working vs. scaffolded today:
 
 | Component | Status |
 |-----------|--------|
-| Electronic structure — graphene tight-binding (Dirac cones, v_F) | ✅ implemented + **validated** vs closed form (5/5) |
+| Electronic structure — graphene tight-binding (Dirac cones, v_F, DOS) | ✅ implemented + **validated** vs closed form (7/7) |
+| General N×N tight-binding solver (CPU/GPU k-space) | ✅ implemented + **validated** (reproduces graphene; GPU==CPU, 4/4) |
 | EM simulation — 1-D FDTD (Yee + PML, Courant) | ✅ implemented + **validated** vs physics refs (3/3) |
 | Reservoir computing — leaky-integrator ESN | ✅ implemented, runnable |
 | (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented, runnable |
@@ -73,11 +74,17 @@ This is an early lab. What is actually working vs. scaffolded today:
 | ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
 | Validation harness | 🟡 started — FDTD (3/3) + graphene TB (5/5); ESN/SA/Rust pending |
 
-**First validated results** (CPU, NumPy, fixed seeds):
+**First validated results** (fixed seeds):
 - FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at
   20 cells/λ, Courant 0.99).
 - Graphene tight-binding: bandwidth **6t**, Dirac gap → 0 at K/K', Fermi velocity
-  **8.74×10⁵ m/s (~ c/343)** — matching the closed form 3·t·a_cc/2ħ.
+  **8.74×10⁵ m/s (~ c/343)**, van Hove singularities at **|E| = 2.69 eV ≈ t** —
+  all matching closed-form results.
+- GPU k-space scaling (general N×N solver, 8192 k-points, RTX 5060 Ti vs NumPy;
+  GPU time includes CPU-built H + host→device transfer, only the eigensolve is on
+  GPU): N=2 **0.03×** (GPU loses — overhead), N=64 **6.4×**, N=256 **66×**
+  (1440 s → 21.7 s). Crossover ~N=32. Honest takeaway: GPU is pointless for tiny
+  models like graphene (2×2) and decisive for large ones (supercells, ribbons).
 
 Everything else still carries no performance claims. See
 `docs/ADR-0001-aether-hardening.md` for the plan; run the suites with
