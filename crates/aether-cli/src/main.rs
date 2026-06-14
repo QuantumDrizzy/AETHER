@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use clap::{Parser, Subcommand};
+use aether_core::compatibility::CompatibilityEngine;
 use aether_core::material::{Material, MaterialCategory};
 
 #[derive(Parser)]
@@ -147,14 +150,49 @@ async fn main() -> anyhow::Result<()> {
                 println!("Running experiment {}", id);
             }
         },
-        Commands::Compat { cmd } => match cmd {
-            CompatCommands::Compute { material_a, material_b } => {
-                println!("Computing compatibility between {} and {}", material_a, material_b);
+        Commands::Compat { cmd } => {
+            let db = aether_db::AetherDb::init("data/aether.db")?;
+            let engine = CompatibilityEngine::new();
+            let weights = HashMap::new(); // default per-dimension weights
+            match cmd {
+                CompatCommands::Compute { material_a, material_b } => {
+                    let a = find_material(&db, &material_a)?;
+                    let b = find_material(&db, &material_b)?;
+                    let r = engine.compute(&a, &b, &weights);
+                    println!("Compatibility: {} vs {}", a.name, b.name);
+                    println!("  Overall: {:.3}  ({})", r.overall_score, r.recommendation);
+                    for d in &r.dimensions {
+                        println!("  {:>16}: {:.3}  [{}]", d.name, d.score, d.method);
+                    }
+                    for s in &r.synergies {
+                        println!("  + synergy : {} ({:.2})", s.description, s.magnitude);
+                    }
+                    for c in &r.conflicts {
+                        println!("  - conflict: {} ({:.2})", c.description, c.severity);
+                    }
+                }
+                CompatCommands::Matrix => {
+                    let mats = db.list_materials(None)?;
+                    if mats.is_empty() {
+                        println!("No materials in the database.");
+                    } else {
+                        print!("{:>14}", "");
+                        for m in &mats {
+                            print!(" {:>10.10}", m.name);
+                        }
+                        println!();
+                        for a in &mats {
+                            print!("{:>14.14}", a.name);
+                            for b in &mats {
+                                let s = engine.compute(a, b, &weights).overall_score;
+                                print!(" {:>10.3}", s);
+                            }
+                            println!();
+                        }
+                    }
+                }
             }
-            CompatCommands::Matrix => {
-                println!("Generating compatibility matrix...");
-            }
-        },
+        }
         Commands::Knowledge { cmd } => match cmd {
             KnowledgeCommands::List => {
                 println!("Listing knowledge entries...");
@@ -166,4 +204,16 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+/// Find a material by exact (case-insensitive) name, else the first substring match.
+fn find_material(db: &aether_db::AetherDb, name: &str) -> anyhow::Result<Material> {
+    let matches = db.search_materials(name)?;
+    if let Some(m) = matches.iter().find(|m| m.name.eq_ignore_ascii_case(name)) {
+        return Ok(m.clone());
+    }
+    matches
+        .into_iter()
+        .next()
+        .ok_or_else(|| anyhow::anyhow!("no material matching '{}'", name))
 }

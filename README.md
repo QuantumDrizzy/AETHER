@@ -25,7 +25,7 @@ cargo run -p aether-cli -- init
 cargo run -p aether-cli -- material add "Cuarzo" --category crystal --dielectric 4.5
 cargo run -p aether-cli -- material add "BaTiO3" --category crystal --dielectric 1200
 
-# Compute compatibility (NOTE: CLI command is a stub today — see Status below)
+# Compute compatibility (wired to the Rust engine; richer data → richer scores)
 cargo run -p aether-cli -- compat compute "Cuarzo" "BaTiO3"
 
 # Run Python simulations
@@ -69,11 +69,11 @@ This is an early lab. What is actually working vs. scaffolded today:
 | (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented + **validated** (finds brute-force optimum; a delta-energy bug was caught & fixed, 2/2) |
 | Rust core — `Material`/`Experiment` types, SQLite persistence | ✅ implemented |
 | Compatibility engine (Rust, `aether-core::compatibility`, 6 dims) | ✅ implemented + **unit-tested** (4/4), ⚠️ **not yet wired to CLI/FFI** |
-| `compat compute` / `compat matrix` (CLI) | ⚠️ prints only — does not call the engine yet |
+| `compat compute` / `compat matrix` (CLI) | ✅ wired to the Rust engine (loads materials from the DB, prints the full report) |
 | PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
 | Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
 | ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
-| Validation harness | 🟢 26 tests: 22 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2, SSH 4) + 4 Rust (compat engine); aether-db CRUD pending |
+| Validation harness | 🟢 30 tests: 22 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2, SSH 4) + 8 Rust (compat engine 4, aether-db CRUD 4) |
 
 **First validated results** (fixed seeds):
 - FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at

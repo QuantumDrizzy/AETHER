@@ -270,3 +270,73 @@ fn row_to_material(row: &rusqlite::Row<'_>) -> Result<Material, String> {
             .with_timezone(&chrono::Utc),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample(name: &str) -> Material {
+        Material::new(name, MaterialCategory::Crystal)
+            .with_density(2650.0)
+            .with_thermal_expansion(1.3e-5)
+            .with_crystal(CrystalStructure {
+                system: CrystalSystem::Hexagonal,
+                space_group: "P6/mmm".into(),
+                lattice_params: LatticeParameters {
+                    a: 2.46,
+                    b: 2.46,
+                    c: 6.7,
+                    alpha: 90.0,
+                    beta: 90.0,
+                    gamma: 120.0,
+                },
+                atoms_per_unit_cell: 4,
+                point_group: "6/mmm".into(),
+                cif_data: None,
+            })
+    }
+
+    #[test]
+    fn insert_and_get_roundtrip_preserves_data() {
+        let db = AetherDb::in_memory().unwrap();
+        let m = sample("Graphite");
+        db.insert_material(&m).unwrap();
+        let got = db.get_material(&m.id).unwrap();
+        assert_eq!(got.name, "Graphite");
+        assert_eq!(got.category, MaterialCategory::Crystal);
+        assert_eq!(got.physical.density, Some(2650.0));
+        let c = got.crystal.expect("crystal should round-trip");
+        assert_eq!(c.system, CrystalSystem::Hexagonal);
+        assert!((c.lattice_params.a - 2.46).abs() < 1e-12);
+    }
+
+    #[test]
+    fn list_and_search() {
+        let db = AetherDb::in_memory().unwrap();
+        db.insert_material(&sample("Quartz")).unwrap();
+        db.insert_material(&sample("Diamond")).unwrap();
+        assert_eq!(db.list_materials(None).unwrap().len(), 2);
+        let found = db.search_materials("dia").unwrap();
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].name, "Diamond");
+    }
+
+    #[test]
+    fn update_changes_fields() {
+        let db = AetherDb::in_memory().unwrap();
+        let mut m = sample("Silicon");
+        db.insert_material(&m).unwrap();
+        m.notes = Some("semiconductor".into());
+        db.update_material(&m).unwrap();
+        assert_eq!(db.get_material(&m.id).unwrap().notes.as_deref(), Some("semiconductor"));
+    }
+
+    #[test]
+    fn delete_removes_material() {
+        let db = AetherDb::in_memory().unwrap();
+        let m = sample("Ephemeral");
+        db.insert_material(&m).unwrap();
+        db.delete_material(&m.id).unwrap();
+        assert!(db.get_material(&m.id).is_err());
+    }
+}
