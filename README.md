@@ -61,7 +61,8 @@ This is an early lab. What is actually working vs. scaffolded today:
 
 | Component | Status |
 |-----------|--------|
-| EM simulation — 1-D FDTD (Yee + PML, Courant) | ✅ implemented, runnable |
+| Electronic structure — graphene tight-binding (Dirac cones, v_F) | ✅ implemented + **validated** vs closed form (5/5) |
+| EM simulation — 1-D FDTD (Yee + PML, Courant) | ✅ implemented + **validated** vs physics refs (3/3) |
 | Reservoir computing — leaky-integrator ESN | ✅ implemented, runnable |
 | (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented, runnable |
 | Rust core — `Material`/`Experiment` types, SQLite persistence | ✅ implemented |
@@ -70,11 +71,17 @@ This is an early lab. What is actually working vs. scaffolded today:
 | PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
 | Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
 | ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
-| Tests / validation harness | ❌ none yet (see `docs/ADR-0001`) |
+| Validation harness | 🟡 started — FDTD (3/3) + graphene TB (5/5); ESN/SA/Rust pending |
 
-**No benchmarks are claimed yet** — nothing here is validated against analytic
-references. That validation harness is the next milestone. See
-`docs/ADR-0001-aether-hardening.md` for the plan.
+**First validated results** (CPU, NumPy, fixed seeds):
+- FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at
+  20 cells/λ, Courant 0.99).
+- Graphene tight-binding: bandwidth **6t**, Dirac gap → 0 at K/K', Fermi velocity
+  **8.74×10⁵ m/s (~ c/343)** — matching the closed form 3·t·a_cc/2ħ.
+
+Everything else still carries no performance claims. See
+`docs/ADR-0001-aether-hardening.md` for the plan; run the suites with
+`python tests/python/test_fdtd_validation.py` and `python tests/python/test_graphene_tb.py`.
 
 ## License
 
