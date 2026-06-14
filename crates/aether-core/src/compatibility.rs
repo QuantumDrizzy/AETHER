@@ -410,3 +410,89 @@ impl Default for CompatibilityEngine {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::material::{
+        CrystalStructure, CrystalSystem, LatticeParameters, Material, MaterialCategory,
+    };
+    use std::collections::HashMap;
+
+    fn cubic(a: f64) -> CrystalStructure {
+        CrystalStructure {
+            system: CrystalSystem::Cubic,
+            space_group: "Fm-3m".into(),
+            lattice_params: LatticeParameters {
+                a,
+                b: a,
+                c: a,
+                alpha: 90.0,
+                beta: 90.0,
+                gamma: 90.0,
+            },
+            atoms_per_unit_cell: 4,
+            point_group: "m-3m".into(),
+            cif_data: None,
+        }
+    }
+
+    fn dim<'a>(r: &'a CompatibilityResult, name: &str) -> &'a CompatibilityDimension {
+        r.dimensions.iter().find(|d| d.name == name).expect("dimension present")
+    }
+
+    #[test]
+    fn identical_materials_are_compatible() {
+        let a = Material::new("X", MaterialCategory::Crystal)
+            .with_crystal(cubic(4.0))
+            .with_thermal_expansion(1e-5)
+            .with_melting_point(1000.0)
+            .with_dielectric_constant(5.0);
+        let b = a.clone();
+        let r = CompatibilityEngine::new().compute(&a, &b, &HashMap::new());
+        assert!(dim(&r, "crystallographic").score > 0.99, "identical lattice should score ~1");
+        assert!((0.0..=1.0).contains(&r.overall_score));
+        assert!(matches!(
+            r.recommendation,
+            Recommendation::Compatible | Recommendation::HighlyCompatible
+        ));
+    }
+
+    #[test]
+    fn missing_data_is_neutral() {
+        let a = Material::new("A", MaterialCategory::Crystal);
+        let b = Material::new("B", MaterialCategory::Crystal);
+        let r = CompatibilityEngine::new().compute(&a, &b, &HashMap::new());
+        for d in &r.dimensions {
+            assert!((d.score - 0.5).abs() < 1e-9, "{} should fall back to 0.5", d.name);
+        }
+        assert!((r.overall_score - 0.5).abs() < 1e-9);
+        assert_eq!(r.recommendation, Recommendation::Neutral);
+    }
+
+    #[test]
+    fn all_dimension_scores_are_in_unit_interval() {
+        let a = Material::new("A", MaterialCategory::Crystal)
+            .with_crystal(cubic(4.0))
+            .with_thermal_expansion(1e-5);
+        let b = Material::new("B", MaterialCategory::Crystal)
+            .with_crystal(cubic(5.5))
+            .with_thermal_expansion(3e-5);
+        let r = CompatibilityEngine::new().compute(&a, &b, &HashMap::new());
+        assert!((0.0..=1.0).contains(&r.overall_score));
+        for d in &r.dimensions {
+            assert!((0.0..=1.0).contains(&d.score), "{} out of range: {}", d.name, d.score);
+        }
+    }
+
+    #[test]
+    fn closer_lattice_scores_higher() {
+        let eng = CompatibilityEngine::new();
+        let base = Material::new("base", MaterialCategory::Crystal).with_crystal(cubic(4.0));
+        let near = Material::new("near", MaterialCategory::Crystal).with_crystal(cubic(4.1));
+        let far = Material::new("far", MaterialCategory::Crystal).with_crystal(cubic(6.0));
+        let s_near = dim(&eng.compute(&base, &near, &HashMap::new()), "crystallographic").score;
+        let s_far = dim(&eng.compute(&base, &far, &HashMap::new()), "crystallographic").score;
+        assert!(s_near > s_far, "closer lattice ({s_near}) should beat far ({s_far})");
+    }
+}

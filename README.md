@@ -67,12 +67,12 @@ This is an early lab. What is actually working vs. scaffolded today:
 | Reservoir computing — leaky-integrator ESN | ✅ implemented + **validated** (NARMA-10 NRMSE, spectral radius, 2/2) |
 | (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented + **validated** (finds brute-force optimum; a delta-energy bug was caught & fixed, 2/2) |
 | Rust core — `Material`/`Experiment` types, SQLite persistence | ✅ implemented |
-| Compatibility engine (Rust, `aether-core::compatibility`, 6 dims) | ✅ implemented, ⚠️ **not yet wired to CLI/FFI** |
+| Compatibility engine (Rust, `aether-core::compatibility`, 6 dims) | ✅ implemented + **unit-tested** (4/4), ⚠️ **not yet wired to CLI/FFI** |
 | `compat compute` / `compat matrix` (CLI) | ⚠️ prints only — does not call the engine yet |
 | PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
 | Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
 | ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
-| Validation harness | 🟢 18 tests, 5 modules (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2); Rust unit tests pending |
+| Validation harness | 🟢 22 tests: 18 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2) + 4 Rust (compat engine); aether-db CRUD pending |
 
 **First validated results** (fixed seeds):
 - FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at
