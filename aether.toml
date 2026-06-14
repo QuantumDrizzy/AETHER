@@ -38,6 +38,9 @@ resolution = 40
 [research.compatibility]
 enabled = true
 
+# Weights for the 6 dimensions implemented by the Rust compatibility engine
+# (aether-core::compatibility). Keep this list in sync with the engine — do not
+# add phantom dimensions that no code computes.
 [research.compatibility.weights]
 crystallographic  = 1.0
 thermal           = 1.2
@@ -45,10 +48,6 @@ electromagnetic   = 1.5
 resonant          = 1.3
 piezoelectric     = 1.4
 mechanical        = 0.8
-quantum_annealing = 1.0
-reservoir         = 0.9
-subjective        = 0.6
-custom            = 1.0
 
 [gui]
 theme      = "dark"

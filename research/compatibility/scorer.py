@@ -5,10 +5,11 @@ from research.compatibility.metrics import MetricCalculator
 @dataclass
 class CompatibilityReport:
     overall_score: float
-    dimensions: dict
+    dimensions: dict          # only the dimensions actually computed
     synergies: list
     conflicts: list
     recommendation: str
+    unimplemented: list       # dimensions skipped because they are not implemented yet
 
 class CompatibilityScorer:
     def __init__(self, weights: dict = None):
@@ -26,7 +27,7 @@ class CompatibilityScorer:
             self.weights = weights
 
     def score(self, mat_a: dict, mat_b: dict) -> CompatibilityReport:
-        scores = {
+        raw = {
             "crystallographic": MetricCalculator.lattice_mismatch(mat_a, mat_b),
             "thermal": MetricCalculator.thermal_expansion_mismatch(mat_a, mat_b),
             "electromagnetic": MetricCalculator.impedance_matching(mat_a, mat_b),
@@ -35,18 +36,21 @@ class CompatibilityScorer:
             "mechanical": MetricCalculator.mechanical_compatibility(mat_a, mat_b),
             "bandgap": MetricCalculator.bandgap_alignment(mat_a, mat_b),
         }
-        
-        weighted_sum = sum(scores[k] * self.weights[k] for k in scores)
-        total_weight = sum(self.weights.values())
+        # Aggregate ONLY the implemented dimensions; never invent a neutral value.
+        scores = {k: v for k, v in raw.items() if v is not None}
+        unimplemented = [k for k, v in raw.items() if v is None]
+
+        total_weight = sum(self.weights.get(k, 0.0) for k in scores)
+        weighted_sum = sum(scores[k] * self.weights.get(k, 0.0) for k in scores)
         overall = weighted_sum / total_weight if total_weight > 0 else 0.0
-        
+
         recommendation = "Neutral"
         if overall > 0.8: recommendation = "HighlyCompatible"
         elif overall > 0.6: recommendation = "Compatible"
         elif overall < 0.2: recommendation = "HighlyIncompatible"
         elif overall < 0.4: recommendation = "Incompatible"
 
-        return CompatibilityReport(overall, scores, [], [], recommendation)
+        return CompatibilityReport(overall, scores, [], [], recommendation, unimplemented)
 
     def score_matrix(self, materials: list[dict]) -> np.ndarray:
         n = len(materials)
@@ -60,10 +64,31 @@ class CompatibilityScorer:
         return matrix
 
     def find_best_pairs(self, materials: list[dict], top_k: int = 5) -> list:
-        return []
+        """Return the top_k most compatible (name_a, name_b, score) pairs."""
+        scored = []
+        for i in range(len(materials)):
+            for j in range(i + 1, len(materials)):
+                s = self.score(materials[i], materials[j]).overall_score
+                scored.append((materials[i].get("name", i), materials[j].get("name", j), s))
+        scored.sort(key=lambda t: t[2], reverse=True)
+        return scored[:top_k]
 
     def find_best_combination(self, materials: list[dict], k: int = 3) -> list:
-        return []
+        """Exhaustive search for the k-material set with the best mean pairwise
+        compatibility. O(C(n, k)) — intended for small candidate sets."""
+        from itertools import combinations
+
+        best_names, best_score = [], -1.0
+        for combo in combinations(range(len(materials)), k):
+            pair_scores = [
+                self.score(materials[a], materials[b]).overall_score
+                for a, b in combinations(combo, 2)
+            ]
+            avg = sum(pair_scores) / len(pair_scores) if pair_scores else 0.0
+            if avg > best_score:
+                best_score = avg
+                best_names = [materials[i].get("name", i) for i in combo]
+        return best_names
 
 if __name__ == "__main__":
     scorer = CompatibilityScorer()

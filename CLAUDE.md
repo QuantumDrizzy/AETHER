@@ -10,7 +10,7 @@
   - **Quantum Annealing**: Optimización de combinaciones de materiales (OpenJij SQA).
   - **Reservoir Computing**: Predicción de comportamiento temporal (ReservoirPy ESN).
   - **EM Simulation**: FDTD para cristales y metamateriales.
-  - **Compatibility Engine**: Motor de scoring multi-métrica con 10 dimensiones.
+  - **Compatibility Engine**: Motor de scoring multi-métrica en Rust (`aether-core::compatibility`), 6 dimensiones implementadas. [KNOWN_LIMIT] aún no cableado al CLI/FFI; el scorer Python es placeholder (2/7). Ver docs/ADR-0001.
   - **Knowledge Base**: Aprendizaje evolutivo de correlaciones.
 
 ## RESTRICCIONES CRÍTICAS
