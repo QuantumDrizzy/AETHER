@@ -144,6 +144,41 @@ class GrapheneTB:
         dist.append(np.array([d0]))
         return np.vstack(ks), np.concatenate(dist)
 
+    @property
+    def reciprocal_vectors(self):
+        """Reciprocal lattice vectors (b1, b2) in 1/Å, with a_i·b_j = 2π·δ_ij."""
+        a = self.a_cc
+        a1 = a * np.array([1.5, -np.sqrt(3.0) / 2.0])
+        a2 = a * np.array([1.5, np.sqrt(3.0) / 2.0])
+        area = a1[0] * a2[1] - a1[1] * a2[0]
+        b1 = 2.0 * np.pi / area * np.array([a2[1], -a2[0]])
+        b2 = 2.0 * np.pi / area * np.array([-a1[1], a1[0]])
+        return b1, b2
+
+    def density_of_states(self, n_k: int = 300, n_bins: int = 400):
+        """Density of states over the Brillouin zone.
+
+        Samples the reciprocal unit cell on an n_k × n_k grid, evaluates both
+        bands, and histograms them. Returns (energy_centers, dos) in eV / (states
+        per eV per unit cell), normalized so ∫ dos dE = 2 (two bands per cell).
+
+        For graphene this reproduces the textbook shape: DOS vanishes linearly at
+        the Dirac point (E=0) and has van Hove (logarithmic) singularities at ±t.
+        """
+        b1, b2 = self.reciprocal_vectors
+        u = np.linspace(0.0, 1.0, n_k, endpoint=False)
+        uu, vv = np.meshgrid(u, u, indexing="ij")
+        k = uu.ravel()[:, None] * b1[None, :] + vv.ravel()[:, None] * b2[None, :]
+        e_minus, e_plus = self.bands(k)
+        energies = np.concatenate([e_minus, e_plus])
+
+        emax = 3.0 * abs(self.t)
+        hist, edges = np.histogram(energies, bins=n_bins, range=(-emax, emax))
+        centers = 0.5 * (edges[:-1] + edges[1:])
+        bin_w = edges[1] - edges[0]
+        dos = hist / (hist.sum() * bin_w) * 2.0  # ∫ dos dE = 2 bands
+        return centers, dos
+
 
 def _demo() -> None:
     # ASCII-only output (Windows consoles default to cp1252 and choke on Greek/symbols).

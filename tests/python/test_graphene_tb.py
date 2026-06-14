@@ -85,6 +85,26 @@ def test_fermi_velocity_is_about_1e6_m_s():
     assert 7.0e5 < v_f_numeric < 1.1e6, f"v_F = {v_f_numeric:.3e} m/s off the known ~1e6"
 
 
+def test_dos_normalization_and_symmetry():
+    """DOS integrates to 2 (two bands per cell) and is electron–hole symmetric."""
+    g = GrapheneTB()
+    centers, dos = g.density_of_states(n_k=400, n_bins=400)
+    bin_w = centers[1] - centers[0]
+    assert np.isclose((dos * bin_w).sum(), 2.0, rtol=1e-9)
+    assert np.mean(np.abs(dos - dos[::-1])) < 0.03 * dos.max(), "DOS not e–h symmetric"
+
+
+def test_dos_dirac_point_and_van_hove():
+    """Textbook graphene DOS: vanishes at the Dirac point, peaks (van Hove) at ±t."""
+    g = GrapheneTB()
+    centers, dos = g.density_of_states(n_k=600, n_bins=400)
+    near_zero = np.abs(centers) < 0.15
+    bulk = (np.abs(centers) > 0.5) & (np.abs(centers) < 2.0)
+    assert dos[near_zero].mean() < 0.2 * dos[bulk].mean(), "DOS does not vanish at Dirac point"
+    e_at_peak = abs(centers[int(np.argmax(dos))])
+    assert abs(e_at_peak - abs(g.t)) < 0.3, f"van Hove peak at {e_at_peak:.2f} eV, expected ~{g.t}"
+
+
 def _run_standalone() -> int:
     tests = [
         test_bandwidth_and_gamma_energies,
@@ -92,6 +112,8 @@ def _run_standalone() -> int:
         test_electron_hole_symmetry,
         test_diagonalization_matches_closed_form,
         test_fermi_velocity_is_about_1e6_m_s,
+        test_dos_normalization_and_symmetry,
+        test_dos_dirac_point_and_van_hove,
     ]
     failures = 0
     for t in tests:
