@@ -1,0 +1,60 @@
+[aether]
+name    = "AETHER LAB"
+version = "0.1.0"
+
+[database]
+path = "data/aether.db"
+backup_interval_hours = 24
+
+[ipc]
+zmq_pub_port  = 5557
+zmq_sub_ports = [5555, 5556]
+protocol      = "json"
+
+[acquisition]
+enabled     = false
+serial_port = "auto"
+baud_rate   = 115200
+
+[research]
+python_venv = ".venv"
+
+[research.quantum_annealing]
+enabled   = true
+num_reads = 100
+method    = "SQA"
+
+[research.reservoir_computing]
+enabled        = true
+reservoir_size = 200
+spectral_radius = 0.9
+leak_rate      = 0.3
+
+[research.em_simulation]
+enabled    = true
+backend    = "numpy"
+resolution = 40
+
+[research.compatibility]
+enabled = true
+
+[research.compatibility.weights]
+crystallographic  = 1.0
+thermal           = 1.2
+electromagnetic   = 1.5
+resonant          = 1.3
+piezoelectric     = 1.4
+mechanical        = 0.8
+quantum_annealing = 1.0
+reservoir         = 0.9
+subjective        = 0.6
+custom            = 1.0
+
+[gui]
+theme      = "dark"
+fps_target = 60
+
+[output]
+db_path     = "data/aether.db"
+report_path = "data/reports"
+export_path = "data/exports"

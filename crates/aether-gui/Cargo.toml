@@ -1,0 +1,17 @@
+[package]
+name = "aether-gui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe     = { workspace = true }
+egui_plot  = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+chrono     = { workspace = true }
+anyhow     = { workspace = true }
+tokio      = { workspace = true }
+tracing    = { workspace = true }
+bytemuck   = { workspace = true }
+aether-core = { path = "../aether-core" }
+aether-db   = { path = "../aether-db" }

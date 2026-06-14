@@ -1,0 +1,22 @@
+[package]
+name = "aether-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "aether"
+path = "src/main.rs"
+
+[dependencies]
+clap               = { workspace = true }
+tokio              = { workspace = true }
+serde              = { workspace = true }
+serde_json         = { workspace = true }
+anyhow             = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono             = { workspace = true }
+toml               = { workspace = true }
+uuid               = { workspace = true }
+aether-core = { path = "../aether-core" }
+aether-db   = { path = "../aether-db" }
