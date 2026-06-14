@@ -63,6 +63,7 @@ This is an early lab. What is actually working vs. scaffolded today:
 |-----------|--------|
 | Electronic structure — graphene tight-binding (Dirac cones, v_F, DOS) | ✅ implemented + **validated** vs closed form (7/7) |
 | General N×N tight-binding solver (CPU/GPU k-space) | ✅ implemented + **validated** (reproduces graphene; GPU==CPU, 4/4) |
+| Topological model — SSH chain (bulk–boundary correspondence) | ✅ implemented + **validated** on the general solver (4/4) |
 | EM simulation — 1-D FDTD (Yee + PML, Courant) | ✅ implemented + **validated** vs physics refs (3/3) |
 | Reservoir computing — leaky-integrator ESN | ✅ implemented + **validated** (NARMA-10 NRMSE, spectral radius, 2/2) |
 | (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented + **validated** (finds brute-force optimum; a delta-energy bug was caught & fixed, 2/2) |
@@ -72,7 +73,7 @@ This is an early lab. What is actually working vs. scaffolded today:
 | PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
 | Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
 | ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
-| Validation harness | 🟢 22 tests: 18 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2) + 4 Rust (compat engine); aether-db CRUD pending |
+| Validation harness | 🟢 26 tests: 22 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2, SSH 4) + 4 Rust (compat engine); aether-db CRUD pending |
 
 **First validated results** (fixed seeds):
 - FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at
@@ -80,6 +81,9 @@ This is an early lab. What is actually working vs. scaffolded today:
 - Graphene tight-binding: bandwidth **6t**, Dirac gap → 0 at K/K', Fermi velocity
   **8.74×10⁵ m/s (~ c/343)**, van Hove singularities at **|E| = 2.69 eV ≈ t** —
   all matching closed-form results.
+- SSH topological chain: bulk gap = **2|t1−t2|**, and a finite open chain shows
+  **2 edge states** in the topological phase vs **0** in the trivial phase — the
+  bulk–boundary correspondence, exact.
 - GPU k-space scaling (general N×N solver, 8192 k-points, RTX 5060 Ti vs NumPy;
   GPU time includes CPU-built H + host→device transfer, only the eigensolve is on
   GPU): N=2 **0.03×** (GPU loses — overhead), N=64 **6.4×**, N=256 **66×**
