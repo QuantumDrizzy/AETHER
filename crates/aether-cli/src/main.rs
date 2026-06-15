@@ -44,6 +44,10 @@ enum MaterialCommands {
         #[arg(long)]
         category: Option<String>,
     },
+    Seed {
+        #[arg(long, default_value = "data/materials/library.json")]
+        file: String,
+    },
     Show {
         id_or_name: String,
     },
@@ -131,6 +135,25 @@ async fn main() -> anyhow::Result<()> {
                         println!("- {} ({:?})", mat.name, mat.category);
                     }
                 }
+            }
+            MaterialCommands::Seed { file } => {
+                let json = std::fs::read_to_string(&file)?;
+                let mats = aether_db::library::parse_library(&json)?;
+                let db = aether_db::AetherDb::init("data/aether.db")?;
+                let existing: std::collections::HashSet<String> = db
+                    .list_materials(None)?
+                    .into_iter()
+                    .map(|m| m.name.to_lowercase())
+                    .collect();
+                let mut added = 0usize;
+                for m in mats {
+                    if existing.contains(&m.name.to_lowercase()) {
+                        continue;
+                    }
+                    db.insert_material(&m)?;
+                    added += 1;
+                }
+                println!("Seeded {added} materials from {file} (skipped existing).");
             }
             MaterialCommands::Show { id_or_name } => {
                 println!("Showing material {}", id_or_name);

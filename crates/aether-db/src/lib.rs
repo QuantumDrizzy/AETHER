@@ -7,6 +7,7 @@ pub mod schema;
 pub mod materials;
 pub mod experiments;
 pub mod knowledge;
+pub mod library;
 
 use std::path::Path;
 

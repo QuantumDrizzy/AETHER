@@ -21,6 +21,9 @@ cargo build --workspace --release
 # Initialize database
 cargo run -p aether-cli -- init
 
+# Seed the curated materials library (graphene, bismuth, carbyne, …)
+cargo run -p aether-cli -- material seed
+
 # Add materials
 cargo run -p aether-cli -- material add "Cuarzo" --category crystal --dielectric 4.5
 cargo run -p aether-cli -- material add "BaTiO3" --category crystal --dielectric 1200
@@ -68,12 +71,13 @@ This is an early lab. What is actually working vs. scaffolded today:
 | Reservoir computing — leaky-integrator ESN | ✅ implemented + **validated** (NARMA-10 NRMSE, spectral radius, 2/2) |
 | (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented + **validated** (finds brute-force optimum; a delta-energy bug was caught & fixed, 2/2) |
 | Rust core — `Material`/`Experiment` types, SQLite persistence | ✅ implemented |
+| Curated materials library (real, sourced) | ✅ 11 materials (carbon allotropes incl. carbyne, Bi, 2D, Si/Cu/quartz/BaTiO₃) → `material seed` (4/4) |
 | Compatibility engine (Rust, `aether-core::compatibility`, 6 dims) | ✅ implemented + **unit-tested** (4/4), ⚠️ **not yet wired to CLI/FFI** |
 | `compat compute` / `compat matrix` (CLI) | ✅ wired to the Rust engine (loads materials from the DB, prints the full report) |
 | PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
 | Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
 | ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
-| Validation harness | 🟢 30 tests: 22 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2, SSH 4) + 8 Rust (compat engine 4, aether-db CRUD 4) |
+| Validation harness | 🟢 34 tests: 22 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2, SSH 4) + 12 Rust (compat 4, db CRUD 4, materials library 4) |
 
 **First validated results** (fixed seeds):
 - FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at
