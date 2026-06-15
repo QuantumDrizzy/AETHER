@@ -20,7 +20,7 @@ impl AetherDb {
                 exp.description,
                 serde_json::to_string(&exp.config)?,
                 serde_json::to_string(&exp.status)?,
-                exp.result.as_ref().map(|r| serde_json::to_string(r)).transpose()?,
+                exp.result.as_ref().map(serde_json::to_string).transpose()?,
                 exp.error,
                 exp.created_at.to_rfc3339(),
                 exp.started_at.map(|t| t.to_rfc3339()),

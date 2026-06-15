@@ -11,6 +11,9 @@ use uuid::Uuid;
 
 use crate::material::Material;
 
+/// A per-dimension scoring method on the engine (name -> score).
+type DimensionFn = fn(&CompatibilityEngine, &Material, &Material) -> CompatibilityDimension;
+
 // ---------------------------------------------------------------------------
 // Result types
 // ---------------------------------------------------------------------------
@@ -119,7 +122,7 @@ impl CompatibilityEngine {
         let mut dimensions = Vec::new();
 
         // Compute each dimension.
-        let dim_fns: Vec<(&str, fn(&CompatibilityEngine, &Material, &Material) -> CompatibilityDimension)> = vec![
+        let dim_fns: Vec<(&str, DimensionFn)> = vec![
             ("crystallographic", Self::crystallographic),
             ("thermal", Self::thermal),
             ("electromagnetic", Self::electromagnetic),
@@ -198,7 +201,7 @@ impl CompatibilityEngine {
                     let mismatch_b = ((ca.lattice_params.b - cb.lattice_params.b) / ca.lattice_params.b).abs();
                     let mismatch_c = ((ca.lattice_params.c - cb.lattice_params.c) / ca.lattice_params.c).abs();
                     let avg_mismatch = (mismatch_a + mismatch_b + mismatch_c) / 3.0;
-                    (1.0 - avg_mismatch * 10.0).max(0.0).min(1.0)
+                    (1.0 - avg_mismatch * 10.0).clamp(0.0, 1.0)
                 } else {
                     0.3 // Different crystal systems are moderately incompatible.
                 }
@@ -228,7 +231,7 @@ impl CompatibilityEngine {
         match (a.physical.thermal_expansion, b.physical.thermal_expansion) {
             (Some(ea), Some(eb)) => {
                 let ratio = if ea > eb { eb / ea } else { ea / eb };
-                score = ratio.max(0.0).min(1.0);
+                score = ratio.clamp(0.0, 1.0);
                 details.push_str(&format!("CTE ratio {:.3}", ratio));
             }
             _ => {
@@ -263,7 +266,7 @@ impl CompatibilityEngine {
         ) {
             (Some(da), Some(db)) => {
                 let ratio = if da > db { db / da } else { da / db };
-                score = ratio.max(0.0).min(1.0);
+                score = ratio.clamp(0.0, 1.0);
                 details.push_str(&format!("ε ratio {:.3}", ratio));
             }
             _ => {
@@ -397,7 +400,7 @@ impl CompatibilityEngine {
 
         CompatibilityDimension {
             name: "mechanical".into(),
-            score: score.max(0.0).min(1.0),
+            score: score.clamp(0.0, 1.0),
             weight: 0.8,
             method: "modulus_hardness".into(),
             details: format!("Mechanical compatibility: {:.2}", score),
