@@ -1,5 +1,4 @@
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
 use aether_core::material::Material;
 
 #[pyclass]
@@ -29,7 +28,7 @@ impl PyAetherDb {
 }
 
 #[pymodule]
-fn aether_ffi(_py: Python, m: &PyModule) -> PyResult<()> {
+fn aether_ffi(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyMaterial>()?;
     m.add_class::<PyAetherDb>()?;
     Ok(())

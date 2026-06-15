@@ -96,9 +96,29 @@ README/CLAUDE; this ADR.
 - ZMQ PUB/SUB bridge to THEIA/SUBSTRATE, tested end-to-end.
 - GUI to the level of sibyl's egui pass; align `eframe` (0.27 → current).
 
+## Status — ARCHIVABLE (2026-06-15)
+
+AETHER reached a coherent, validated, usable milestone — **parked, not deleted**
+(stays on the desktop with the rest of the ecosystem):
+- **35 validation tests** green: 22 Python (FDTD, graphene + DOS, general N×N TB
+  solver CPU/GPU, ESN, SA, SSH) + 13 Rust (compat engine, physics, db CRUD,
+  materials library). Whole workspace **clippy-clean**.
+- Scientific spine: electronic structure (graphene TB, DOS, general solver),
+  topological SSH, photonic FDTD; honest GPU benchmark (66× at N=256, 0.03× at N=2).
+- Real **curated materials library** (carbon allotropes incl. carbyne, bismuth,
+  2D materials, …) seeded into the DB.
+- **Native GUI**: dashboard + seed, materials browser, Compatibility wired to the
+  Rust engine, live graphene band-structure plot.
+- A real SA delta-energy double-counting bug was caught & fixed by the harness.
+
+Deferred (P3, optional, beyond archivable): real PyO3 FFI bridge, ZMQ to
+THEIA/SUBSTRATE, richer GUI physics panels (DOS/FDTD), enrich `material add`.
+Next ecosystem step: **Spectra** (shared spectral spine), then DRIFT/computronium.
+
 ## Action items
-1. [x] git + push private; neutralize Python façade; align config; fix docs.
-2. [ ] P1 validation harness (FDTD/ESN/SA + Rust unit tests).
-3. [ ] P2 wire CLI → Rust engine.
-4. [ ] P3 FFI + ZMQ + GUI.
-5. [ ] Decide whether to delete `research/compatibility` after the FFI lands.
+1. [x] P0 — git + push private; neutralize Python façade; align config; fix docs.
+2. [x] P1 — validation harness (FDTD/ESN/SA + graphene/SSH + Rust unit tests).
+3. [x] P2 — wire `compat` CLI → Rust engine.
+4. [x] GUI — clean theme, wired Compatibility, live band plot.
+5. [ ] P3 (deferred) — real FFI + ZMQ + extra GUI panels; then decide on
+   `research/compatibility`.

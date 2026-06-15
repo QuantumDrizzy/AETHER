@@ -39,6 +39,12 @@ pub struct AcquisitionManager {
     // Stub
 }
 
+impl Default for AcquisitionManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AcquisitionManager {
     pub fn new() -> Self {
         Self {}
