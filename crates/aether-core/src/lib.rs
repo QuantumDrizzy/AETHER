@@ -9,6 +9,7 @@ pub mod experiment;
 pub mod compatibility;
 pub mod knowledge;
 pub mod config;
+pub mod physics;
 
 pub use material::*;
 pub use experiment::*;

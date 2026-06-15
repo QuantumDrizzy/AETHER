@@ -9,6 +9,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use eframe::egui;
+use egui_plot::{Line, Plot};
 
 use aether_core::compatibility::{CompatibilityEngine, CompatibilityResult, Recommendation};
 use aether_core::material::Material;
@@ -25,6 +26,7 @@ const MUTED: egui::Color32 = egui::Color32::from_rgb(140, 146, 158);
 const ACCENT: egui::Color32 = egui::Color32::from_rgb(90, 196, 184); // muted teal
 const GOOD: egui::Color32 = egui::Color32::from_rgb(122, 200, 140);
 const BAD: egui::Color32 = egui::Color32::from_rgb(224, 146, 120);
+const VIOLET: egui::Color32 = egui::Color32::from_rgb(170, 150, 240);
 
 fn style(ctx: &egui::Context) {
     let mut v = egui::Visuals::dark();
@@ -52,6 +54,7 @@ enum Tab {
     Dashboard,
     Materials,
     Compatibility,
+    Bands,
     Experiments,
 }
 
@@ -64,6 +67,8 @@ pub struct AetherApp {
     sel_a: usize,
     sel_b: usize,
     compat: Option<CompatibilityResult>,
+    // band-structure tab
+    t_ev: f64,
     // experiments tab (background python)
     sim_output: Arc<Mutex<Option<String>>>,
     is_sim_running: Arc<Mutex<bool>>,
@@ -85,6 +90,7 @@ impl AetherApp {
             sel_a: 0,
             sel_b: 1,
             compat: None,
+            t_ev: 2.7,
             sim_output: Arc::new(Mutex::new(None)),
             is_sim_running: Arc::new(Mutex::new(false)),
         };
@@ -159,6 +165,7 @@ impl eframe::App for AetherApp {
                 tab(ui, &mut self.tab, Tab::Dashboard, "Dashboard");
                 tab(ui, &mut self.tab, Tab::Materials, "Materials");
                 tab(ui, &mut self.tab, Tab::Compatibility, "Compatibility");
+                tab(ui, &mut self.tab, Tab::Bands, "Band structure");
                 tab(ui, &mut self.tab, Tab::Experiments, "Experiments");
 
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
@@ -174,6 +181,7 @@ impl eframe::App for AetherApp {
                     Tab::Dashboard => self.ui_dashboard(ui),
                     Tab::Materials => self.ui_materials(ui),
                     Tab::Compatibility => self.ui_compat(ui),
+                    Tab::Bands => self.ui_bands(ui),
                     Tab::Experiments => self.ui_experiments(ui),
                 }
                 if let Some(s) = &self.status {
@@ -300,6 +308,34 @@ impl AetherApp {
                 ui.label(egui::RichText::new(format!("− {}", c.description)).size(12.0).color(BAD));
             }
         }
+    }
+
+    fn ui_bands(&mut self, ui: &mut egui::Ui) {
+        ui.label(egui::RichText::new("Graphene band structure").size(24.0).color(TEXT).strong());
+        ui.add_space(6.0);
+        ui.label(
+            egui::RichText::new("Nearest-neighbor tight-binding, closed form  E = ±t·|f(k)|  along Γ–K–M–Γ. Live.")
+                .color(MUTED),
+        );
+        ui.add_space(10.0);
+        ui.add(egui::Slider::new(&mut self.t_ev, 0.5..=4.0).text("hopping t (eV)"));
+        ui.add_space(8.0);
+
+        let (dist, lo, hi) = aether_core::physics::graphene_band_path(self.t_ev, 1.42, 200);
+        let valence: Vec<[f64; 2]> = dist.iter().zip(&lo).map(|(&d, &e)| [d, e]).collect();
+        let conduction: Vec<[f64; 2]> = dist.iter().zip(&hi).map(|(&d, &e)| [d, e]).collect();
+        Plot::new("graphene_bands").height(360.0).show(ui, |p| {
+            p.line(Line::new(valence).color(ACCENT).name("valence"));
+            p.line(Line::new(conduction).color(VIOLET).name("conduction"));
+        });
+        ui.label(
+            egui::RichText::new(format!(
+                "bandwidth 6t = {:.2} eV · the bands touch at the Dirac point K (gap → 0)",
+                6.0 * self.t_ev
+            ))
+            .size(12.0)
+            .color(MUTED),
+        );
     }
 
     fn ui_experiments(&mut self, ui: &mut egui::Ui) {
