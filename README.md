@@ -1,104 +1,104 @@
-# AETHER LAB
+# AETHER
 
-> Advanced Materials Research Engine — iNFAMØUS OS
+> A computational-materials and unconventional-computing-substrates lab.
 
-Plataforma de investigación de materiales avanzados: cristales, metamateriales, nanomateriales, aleaciones. Simulación cuántica-inspirada + compatibilidad multi-métrica + base de conocimiento evolutiva.
+A bare-metal research lab where **physics computes by minimizing energy** — and
+every claim is checked against a closed form or a reference. Rust core (types,
+SQLite, native GUI) under a Python research layer spanning electronic structure
+and topology, metamaterials, self-organisation, criticality, and the
+thermodynamics of computation. **~90 validation tests, all green.**
 
-## Stack
+Three threads run through the lab:
 
-- **Core Engine**: Rust (workspace con 6 crates)
-- **Research Layer**: Python (Quantum Annealing, Reservoir Computing, EM Simulation)
-- **Database**: SQLite embebida (rusqlite)
-- **GUI**: egui + wgpu (nativo)
-- **IPC**: ZMQ PUB/SUB (integración con SUBSTRATE/KHAOS)
+- **the edge of chaos** — memory capacity, task performance and order all peak at
+  the same critical boundary, across unrelated substrates;
+- **structure sets the property** — auxetic metamaterials, band gaps and
+  topological invariants come from geometry/symmetry, not the base material;
+- **information ↔ energy ↔ matter** — Landauer, Maxwell's demon, and the
+  thermodynamic price of computation, measured.
 
-## Quick Start
+## The map
+
+### Electronic structure & topology — `research/electronic_structure/`
+Graphene tight-binding (Dirac cones, Fermi velocity, DOS) · hexagonal boron
+nitride (gap = 2Δ from sublattice asymmetry) · the full topological set: **SSH**
+(1D winding Z + bulk-boundary correspondence), **Haldane** (2D Chern = ±1,
+quantum anomalous Hall), **Kane–Mele** (Z₂ quantum spin Hall) · **Anderson
+localization** (disorder kills the metal). CPU/GPU k-space solver, validated GPU==CPU.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/haldane_phase_diagram.png" alt="Haldane topological phase diagram" width="600">
+</p>
+
+### Metamaterials — `research/metamaterials/`, `research/em_simulation/`
+Auxetic honeycomb (negative Poisson's ratio from re-entrant geometry) · 1D
+photonic crystal (Bragg band gap from periodic structure) · effective-medium
+negative-index metamaterial (SRR + wire) · 1D FDTD (Yee + PML).
+
+### Daemons & self-organisation — `research/daemons/`, `research/active_matter/`, `research/programmable_matter/`, `research/reaction_diffusion/`, `research/cellular_automata/`
+Maxwell's demon / Szilard engine (work = k_BT·ln2 × mutual information; Landauer
+floor keeps the 2nd law) · Vicsek active matter (flocking transition + phase
+diagram) · a target-seeking active swarm that self-assembles and self-repairs ·
+programmable matter that reconfigures to a shape and heals under damage ·
+Gray–Scott reaction–diffusion (morphogenesis) · Conway's Game of Life.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/gray_scott_pattern.png" alt="Gray-Scott morphogenesis" width="640">
+</p>
+
+### Criticality & computation — `research/criticality/`, `research/reservoir_computing/`, `research/neuro/`, `research/fractals/`
+**Universal criticality**: Ising, Vicsek and self-reconfiguration share one
+order→disorder transition (the curves collapse) · site percolation (geometric
+critical threshold p_c ≈ 0.593) · reservoir computing (ESN; NARMA-10 task error
+minimised below the edge of chaos, ruined past it) · Hopfield associative memory
+(capacity collapse at α_c ≈ 0.138) · box-counting fractal dimension (exact on
+Sierpiński).
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/universal_criticality.png" alt="universal criticality" width="640">
+</p>
+
+### Optimization & Rust core
+Simulated annealing / QUBO (validated against brute-force optima) · Rust
+workspace (`Material`/`Experiment` types, SQLite persistence, CLI, native egui GUI
+with live band-structure plots).
+
+## Validation
+
+~90 tests across Python and Rust; every physics claim is checked against a closed
+form or a published reference (Dirac bandwidth 6t, SSH 2 edge states, Haldane
+Chern ±1, Kane–Mele Z₂, Hopfield α_c, percolation p_c, Landauer k_BT ln2, …). Two
+"too-good" results were distrusted and corrected by their own tests — a Maxwell-
+demon protocol that beat the information bound, and a reservoir "efficiency" that
+was a saturation artefact.
 
 ```bash
-# Build
-cargo build --workspace --release
-
-# Initialize database
-cargo run -p aether-cli -- init
-
-# Seed the curated materials library (graphene, bismuth, carbyne, …)
-cargo run -p aether-cli -- material seed
-
-# Add materials
-cargo run -p aether-cli -- material add "Cuarzo" --category crystal --dielectric 4.5
-cargo run -p aether-cli -- material add "BaTiO3" --category crystal --dielectric 1200
-
-# Compute compatibility (wired to the Rust engine; richer data → richer scores)
-cargo run -p aether-cli -- compat compute "Cuarzo" "BaTiO3"
-
-# Run Python simulations
-python -m research.quantum_annealing.annealer
-python -m research.reservoir_computing.esn
-python -m research.em_simulation.resonance
-python -m research.compatibility.scorer
+pytest tests/python -q          # Python research layer
+cargo test --workspace          # Rust core
 ```
 
 ## Architecture
 
 ```
 AETHER/
-├── crates/                  ← Rust workspace
-│   ├── aether-core/         ← Material, Experiment, Compatibility types
-│   ├── aether-db/           ← SQLite persistence
-│   ├── aether-acq/          ← Hardware acquisition (future)
-│   ├── aether-ffi/          ← PyO3 Rust↔Python bridge
-│   ├── aether-cli/          ← Terminal interface
-│   └── aether-gui/          ← Native GUI (egui+wgpu)
-├── research/                ← Python research layer
-│   ├── quantum_annealing/   ← QUBO + Simulated QA
-│   ├── reservoir_computing/ ← Echo State Networks
-│   ├── em_simulation/       ← FDTD + resonance
-│   ├── compatibility/       ← Multi-metric scoring
-│   └── knowledge/           ← Pattern learning
-└── data/                    ← SQLite DB + results
+├── crates/        ← Rust: core types · SQLite · CLI · native GUI · PyO3 FFI
+├── research/      ← electronic_structure · metamaterials · em_simulation ·
+│                    daemons · active_matter · programmable_matter ·
+│                    reaction_diffusion · cellular_automata · criticality ·
+│                    reservoir_computing · neuro · fractals · quantum_annealing
+├── figures/       ← generated benchmarks & visualisations
+└── tests/         ← Python + Rust validation suites
 ```
 
-## Status (honest)
+## Quick start
 
-This is an early lab. What is actually working vs. scaffolded today:
+```bash
+cargo build --workspace --release
+cargo run -p aether-cli -- init
+cargo run -p aether-cli -- material seed     # curated library (graphene, carbyne, Bi, …)
+python -m research.electronic_structure.haldane     # e.g. the topological model
+```
 
-| Component | Status |
-|-----------|--------|
-| Electronic structure — graphene tight-binding (Dirac cones, v_F, DOS) | ✅ implemented + **validated** vs closed form (7/7) |
-| General N×N tight-binding solver (CPU/GPU k-space) | ✅ implemented + **validated** (reproduces graphene; GPU==CPU, 4/4) |
-| Topological model — SSH chain (bulk–boundary correspondence) | ✅ implemented + **validated** on the general solver (4/4) |
-| EM simulation — 1-D FDTD (Yee + PML, Courant) | ✅ implemented + **validated** vs physics refs (3/3) |
-| Reservoir computing — leaky-integrator ESN | ✅ implemented + **validated** (NARMA-10 NRMSE, spectral radius, 2/2) |
-| (Simulated/quantum) annealing — QUBO + SA, OpenJij optional | ✅ implemented + **validated** (finds brute-force optimum; a delta-energy bug was caught & fixed, 2/2) |
-| Rust core — `Material`/`Experiment` types, SQLite persistence | ✅ implemented |
-| Curated materials library (real, sourced) | ✅ 11 materials (carbon allotropes incl. carbyne, Bi, 2D, Si/Cu/quartz/BaTiO₃) → `material seed` (4/4) |
-| Native GUI (egui) | ✅ dashboard + seed, materials browser, **wired Compatibility**, **live graphene band-structure plot** (egui_plot) |
-| Compatibility engine (Rust, `aether-core::compatibility`, 6 dims) | ✅ implemented + **unit-tested** (4/4), ⚠️ **not yet wired to CLI/FFI** |
-| `compat compute` / `compat matrix` (CLI) | ✅ wired to the Rust engine (loads materials from the DB, prints the full report) |
-| PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
-| Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
-| ZMQ IPC to SUBSTRATE | ⚠️ declared in config, not wired |
-| Validation harness | 🟢 35 tests: 22 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2, SSH 4) + 13 Rust (compat 4, physics 1, db CRUD 4, materials library 4) |
+---
 
-**First validated results** (fixed seeds):
-- FDTD vacuum propagation speed: **0.966 c** (expected numerical dispersion at
-  20 cells/λ, Courant 0.99).
-- Graphene tight-binding: bandwidth **6t**, Dirac gap → 0 at K/K', Fermi velocity
-  **8.74×10⁵ m/s (~ c/343)**, van Hove singularities at **|E| = 2.69 eV ≈ t** —
-  all matching closed-form results.
-- SSH topological chain: bulk gap = **2|t1−t2|**, and a finite open chain shows
-  **2 edge states** in the topological phase vs **0** in the trivial phase — the
-  bulk–boundary correspondence, exact.
-- GPU k-space scaling (general N×N solver, 8192 k-points, RTX 5060 Ti vs NumPy;
-  GPU time includes CPU-built H + host→device transfer, only the eigensolve is on
-  GPU): N=2 **0.03×** (GPU loses — overhead), N=64 **6.4×**, N=256 **66×**
-  (1440 s → 21.7 s). Crossover ~N=32. Honest takeaway: GPU is pointless for tiny
-  models like graphene (2×2) and decisive for large ones (supercells, ribbons).
-
-Everything else still carries no performance claims. See
-`docs/ADR-0001-aether-hardening.md` for the plan; run the suites with
-`python tests/python/test_fdtd_validation.py` and `python tests/python/test_graphene_tb.py`.
-
-## License
-
-Proprietary — iNFAMØUS OS
+*Bare-metal · local-first · honest benchmarks. © Antonio Zambudio.*
