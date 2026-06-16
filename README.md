@@ -63,6 +63,27 @@ Simulated annealing / QUBO (validated against brute-force optima) · Rust
 workspace (`Material`/`Experiment` types, SQLite persistence, CLI, native egui GUI
 with live band-structure plots).
 
+## GPU acceleration — where CUDA pays (and where it doesn't)
+
+CUDA goes where it earns its keep, with honest CPU-vs-GPU benchmarks on an
+RTX 5060 Ti (sm_120) — not on toy sizes where launch overhead loses. Three HPC
+patterns, measured (`*_gpu.py`):
+
+| pattern | module | GPU speedup |
+|---|---|---|
+| lattice Monte Carlo | 2D Ising (`criticality/ising2d_gpu.py`) | 0.3× at 64² → **~199× at 1024²** |
+| stencil / PDE | Gray–Scott (`reaction_diffusion/gray_scott_gpu.py`) | 1× at 128² → **~199× at 1024²** |
+| dense eigensolve | Anderson (`electronic_structure/anderson_gpu.py`) | **~31× at L=500 → ~9× at 3000** |
+
+The lattice/stencil cases lose below ~L≈100 (overhead) and win decisively when
+large; the dense eigensolve wins across the range. GPU results are validated
+against the CPU physics. Small models (graphene's 2×2 Hamiltonian, a 500-node
+Kuramoto) stay on CPU on purpose — GPU there would be slower.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/ising2d_gpu_speedup.png" alt="2D Ising CPU vs GPU speedup" width="600">
+</p>
+
 ## Validation
 
 ~90 tests across Python and Rust; every physics claim is checked against a closed
