@@ -1,7 +1,7 @@
 # ADR-0002: Extract the simulated-annealing / QUBO core into a shared spine
 
-**Status:** Proposed
-**Date:** 2026-06-15
+**Status:** Accepted — Option A (standalone `anneal` spine repo). Executed 2026-06-16.
+**Date:** 2026-06-15 (accepted 2026-06-16)
 **Deciders:** Antonio (QuantumDrizzy)
 
 ## Context
@@ -108,10 +108,15 @@ step that needs no new repo and can be promoted to A in one move later.
   is the place to add a backend, not AETHER.
 
 ## Action Items
-1. [ ] Antonio: approve Option **A** (new repo) or **C** (internal subpackage first).
-2. [ ] Move SA core + `qubo_energy`/`brute_force_min`/penalty builders out of the
-   materials module; keep `QUBOFormulator`/`DEMO_MATERIALS` in AETHER.
-3. [ ] Port `test_annealer.py` helpers (`_random_qubo`, `_brute_force_min`,
-   `_qubo_energy`) as the spine's test suite; add a cardinality/one-hot penalty test.
-4. [ ] Rewire AETHER's annealer demo + `optimizer.py` to consume the spine.
-5. [ ] Freeze the v0.1 API; record it in the spine's own ADR-0001 (Spectra pattern).
+1. [x] Antonio approved Option **A** (standalone spine repo `anneal`).
+2. [x] SA core + `qubo_energy`/`brute_force_min`/penalty builders extracted to
+   `anneal`; `QUBOFormulator`/`DEMO_MATERIALS` stay in AETHER.
+3. [x] Test suite in the spine (`anneal/tests/`, 10 green): brute-force optimum,
+   energy/sample consistency, determinism, SQA fallback, cardinality/one-hot.
+4. [x] AETHER `annealer.py` rewired to consume the spine (local SA removed,
+   `MaterialAnnealer`/`AnnealingResult` API preserved); `test_annealer` 2/2 and
+   full Python suite 24/24 green; demo works end-to-end.
+5. [x] v0.1 API frozen in `anneal/docs/ADR-0001-anneal-spine.md`.
+
+**Pending:** `gh repo create QuantumDrizzy/anneal --private` + push (the only
+outward step; awaiting explicit go, as with Spectra). Repo is committed locally.
