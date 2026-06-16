@@ -65,6 +65,20 @@ def count_edge_states(n_cells: int, t1: float, t2: float, tol: float | None = No
     return int(np.sum(np.abs(finite_spectrum(n_cells, t1, t2)) < tol))
 
 
+def winding_number(t1: float, t2: float, n_k: int = 4000) -> int:
+    """Bulk topological invariant Z: the winding of h(k) = t1 + t2·e^{ik} around 0.
+
+    As k runs 0→2π, h(k) traces a circle of radius t2 centred at t1. It encircles
+    the origin (W = 1, topological) iff t2 > t1, and does not (W = 0, trivial) iff
+    t1 > t2. Bulk–boundary correspondence: W equals the number of edge states per
+    end of the open chain — the bulk invariant predicts the boundary physics.
+    """
+    k = np.linspace(0.0, 2.0 * np.pi, n_k)
+    h = t1 + t2 * np.exp(1j * k)
+    phase = np.unwrap(np.angle(h))
+    return int(round((phase[-1] - phase[0]) / (2.0 * np.pi)))
+
+
 def _demo() -> None:
     print("SSH chain (canonical 1-D topological model)")
     for t1, t2 in [(1.0, 0.6), (1.0, 1.0), (0.6, 1.0)]:
