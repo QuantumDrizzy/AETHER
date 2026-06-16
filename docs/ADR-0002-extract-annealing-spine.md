@@ -1,6 +1,8 @@
 # ADR-0002: Extract the simulated-annealing / QUBO core into a shared spine
 
-**Status:** Accepted — Option A (standalone `anneal` spine repo). Executed 2026-06-16.
+**Status:** Accepted — Option A (standalone spine repo, named **`temp0r`**). Executed 2026-06-16.
+> Note: this ADR used the working name `anneal` throughout; the spine shipped as
+> **`temp0r`** (cool to T→0 ⇒ ground state ⇒ optimum). Read `anneal` below as `temp0r`.
 **Date:** 2026-06-15 (accepted 2026-06-16)
 **Deciders:** Antonio (QuantumDrizzy)
 
@@ -116,7 +118,7 @@ step that needs no new repo and can be promoted to A in one move later.
 4. [x] AETHER `annealer.py` rewired to consume the spine (local SA removed,
    `MaterialAnnealer`/`AnnealingResult` API preserved); `test_annealer` 2/2 and
    full Python suite 24/24 green; demo works end-to-end.
-5. [x] v0.1 API frozen in `anneal/docs/ADR-0001-anneal-spine.md`.
+5. [x] v0.1 API frozen in `temp0r/docs/ADR-0001-temp0r-spine.md`.
 
-**Pending:** `gh repo create QuantumDrizzy/anneal --private` + push (the only
+**Pending:** `gh repo create QuantumDrizzy/temp0r --private` + push (the only
 outward step; awaiting explicit go, as with Spectra). Repo is committed locally.

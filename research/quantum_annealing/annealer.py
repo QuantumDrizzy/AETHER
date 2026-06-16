@@ -1,13 +1,13 @@
 """
 Material Annealer — thin consumer of the `anneal` spine
 ========================================================
-The simulated-annealing / QUBO core lives in the shared **anneal** spine
-(`QuantumDrizzy/anneal`, twin of Spectra). This module keeps AETHER's
+The simulated-annealing / QUBO core lives in the shared **temp0r** spine
+(`QuantumDrizzy/temp0r`, twin of Spectra). This module keeps AETHER's
 material-facing API (`MaterialAnnealer`, `AnnealingResult`) but delegates the
 actual optimisation to the spine — one owned, audited SA/QUBO core, not a copy
 per lab. See docs/ADR-0002-extract-annealing-spine.md.
 
-Install the spine (editable):  pip install -e ../anneal
+Install the spine (editable):  pip install -e ../temp0r
 
 Run standalone:
     python -m research.quantum_annealing.annealer
@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from anneal import anneal as _spine_anneal
+from temp0r import anneal as _spine_anneal
 
 
 @dataclass
