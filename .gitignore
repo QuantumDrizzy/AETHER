@@ -36,3 +36,10 @@ desktop.ini
 
 # Artifacts
 *.png
+# ...but keep the showcase figures (deliverables, like DRIFT's)
+!figures/
+!figures/*.png
+
+# Private — never publish
+CLAUDE.md
+.claude/

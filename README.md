@@ -10,7 +10,7 @@ Plataforma de investigación de materiales avanzados: cristales, metamateriales,
 - **Research Layer**: Python (Quantum Annealing, Reservoir Computing, EM Simulation)
 - **Database**: SQLite embebida (rusqlite)
 - **GUI**: egui + wgpu (nativo)
-- **IPC**: ZMQ PUB/SUB (integración con THEIA/SUBSTRATE/KHAOS)
+- **IPC**: ZMQ PUB/SUB (integración con SUBSTRATE/KHAOS)
 
 ## Quick Start
 
@@ -77,7 +77,7 @@ This is an early lab. What is actually working vs. scaffolded today:
 | `compat compute` / `compat matrix` (CLI) | ✅ wired to the Rust engine (loads materials from the DB, prints the full report) |
 | PyO3 FFI bridge (`aether-ffi`) | ⚠️ stub (exposes `Material.name` only) |
 | Python compatibility scorer (`research/compatibility`) | ⚠️ placeholder — 2 of 7 metrics implemented; rest report as unimplemented |
-| ZMQ IPC to THEIA/SUBSTRATE | ⚠️ declared in config, not wired |
+| ZMQ IPC to SUBSTRATE | ⚠️ declared in config, not wired |
 | Validation harness | 🟢 35 tests: 22 Python (FDTD 3, graphene 7, TB solver 4, ESN 2, SA 2, SSH 4) + 13 Rust (compat 4, physics 1, db CRUD 4, materials library 4) |
 
 **First validated results** (fixed seeds):

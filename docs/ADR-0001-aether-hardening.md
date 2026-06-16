@@ -93,7 +93,7 @@ README/CLAUDE; this ADR.
 
 **P3 — Ecosystem integration.**
 - PyO3 FFI: expose the DB + compatibility engine to Python; round-trip tested.
-- ZMQ PUB/SUB bridge to THEIA/SUBSTRATE, tested end-to-end.
+- ZMQ PUB/SUB bridge to SUBSTRATE, tested end-to-end.
 - GUI to the level of sibyl's egui pass; align `eframe` (0.27 → current).
 
 ## Status — ARCHIVABLE (2026-06-15)
@@ -112,7 +112,7 @@ AETHER reached a coherent, validated, usable milestone — **parked, not deleted
 - A real SA delta-energy double-counting bug was caught & fixed by the harness.
 
 Deferred (P3, optional, beyond archivable): real PyO3 FFI bridge, ZMQ to
-THEIA/SUBSTRATE, richer GUI physics panels (DOS/FDTD), enrich `material add`.
+SUBSTRATE, richer GUI physics panels (DOS/FDTD), enrich `material add`.
 Next ecosystem step: **Spectra** (shared spectral spine), then DRIFT/computronium.
 
 ## Action items
