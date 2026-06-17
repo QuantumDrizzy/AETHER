@@ -5,15 +5,18 @@
 A bare-metal research lab where **physics computes by minimizing energy** — and
 every claim is checked against a closed form or a reference. Rust core (types,
 SQLite, native GUI) under a Python research layer spanning electronic structure
-and topology, metamaterials, self-organisation, criticality, and the
-thermodynamics of computation. **~90 validation tests, all green.**
+and topology, lattice dynamics, real-space quantum mechanics, metamaterials,
+self-organisation, criticality, and the thermodynamics of computation.
+**~150 validation tests, all green.**
 
-Three threads run through the lab:
+Four threads run through the lab:
 
 - **the edge of chaos** — memory capacity, task performance and order all peak at
   the same critical boundary, across unrelated substrates;
 - **structure sets the property** — auxetic metamaterials, band gaps and
   topological invariants come from geometry/symmetry, not the base material;
+- **bands → phonons → thermodynamics** — the same matrix machinery gives electron
+  bands, then phonon dispersion, then a macroscopic heat capacity (Debye T³);
 - **information ↔ energy ↔ matter** — Landauer, Maxwell's demon, and the
   thermodynamic price of computation, measured.
 
@@ -25,10 +28,21 @@ nitride (gap = 2Δ from sublattice asymmetry) · the full topological set: **SSH
 (1D winding Z + bulk-boundary correspondence), **Haldane** (2D Chern = ±1,
 quantum anomalous Hall), **Kane–Mele** (Z₂ quantum spin Hall) · **Anderson
 localization** (disorder kills the metal). CPU/GPU k-space solver, validated GPU==CPU.
+Plus a **real-space Schrödinger solver** (finite differences) as the k-space
+complement: harmonic-oscillator ladder, square-well levels, and barrier
+tunnelling — each checked against its closed form.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/haldane_phase_diagram.png" alt="Haldane topological phase diagram" width="600">
 </p>
+
+### Lattice dynamics — `research/phonons/`
+Phonon dispersion of 1D chains as **band structure for vibrations**: a monatomic
+acoustic branch and a diatomic acoustic+optical pair with a phonon band gap
+(the vibrational twin of the hBN electronic gap), from the dynamical matrix.
+Then the thermodynamic payoff — lattice **heat capacity** summed over the
+spectrum: Dulong–Petit at high T, the Debye **T³ law** at low T (matched to the
+analytic limit), and Einstein's too-fast exponential freeze-out.
 
 ### Metamaterials — `research/metamaterials/`, `research/em_simulation/`
 Auxetic honeycomb (negative Poisson's ratio from re-entrant geometry) · 1D
@@ -51,8 +65,10 @@ Gray–Scott reaction–diffusion (morphogenesis) · Conway's Game of Life.
 order→disorder transition (the curves collapse) · site percolation (geometric
 critical threshold p_c ≈ 0.593) · reservoir computing (ESN; NARMA-10 task error
 minimised below the edge of chaos, ruined past it) · Hopfield associative memory
-(capacity collapse at α_c ≈ 0.138) · box-counting fractal dimension (exact on
-Sierpiński).
+(capacity collapse at α_c ≈ 0.138) · Kuramoto synchronization (critical coupling)
+· Watts–Strogatz small-world networks · elementary cellular automata (Wolfram
+rules 30/90/110: chaos, Sierpiński, universality) · box-counting fractal
+dimension (exact on Sierpiński).
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/universal_criticality.png" alt="universal criticality" width="640">
@@ -86,12 +102,12 @@ Kuramoto) stay on CPU on purpose — GPU there would be slower.
 
 ## Validation
 
-~90 tests across Python and Rust; every physics claim is checked against a closed
+~150 tests across Python and Rust; every physics claim is checked against a closed
 form or a published reference (Dirac bandwidth 6t, SSH 2 edge states, Haldane
-Chern ±1, Kane–Mele Z₂, Hopfield α_c, percolation p_c, Landauer k_BT ln2, …). Two
-"too-good" results were distrusted and corrected by their own tests — a Maxwell-
-demon protocol that beat the information bound, and a reservoir "efficiency" that
-was a saturation artefact.
+Chern ±1, Kane–Mele Z₂, QHO ladder, Debye T³, Hopfield α_c, percolation p_c,
+Landauer k_BT ln2, …). Two "too-good" results were distrusted and corrected by
+their own tests — a Maxwell-demon protocol that beat the information bound, and a
+reservoir "efficiency" that was a saturation artefact.
 
 ```bash
 pytest tests/python -q          # Python research layer
@@ -103,10 +119,10 @@ cargo test --workspace          # Rust core
 ```
 AETHER/
 ├── crates/        ← Rust: core types · SQLite · CLI · native GUI · PyO3 FFI
-├── research/      ← electronic_structure · metamaterials · em_simulation ·
+├── research/      ← electronic_structure · phonons · metamaterials · em_simulation ·
 │                    daemons · active_matter · programmable_matter ·
 │                    reaction_diffusion · cellular_automata · criticality ·
-│                    reservoir_computing · neuro · fractals · quantum_annealing
+│                    reservoir_computing · neuro · networks · fractals · quantum_annealing
 ├── figures/       ← generated benchmarks & visualisations
 └── tests/         ← Python + Rust validation suites
 ```
