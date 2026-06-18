@@ -74,6 +74,30 @@ dimension (exact on Sierpiński).
   <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/universal_criticality.png" alt="universal criticality" width="640">
 </p>
 
+### Inverse design — target property → structure — `research/inverse_design/`
+Every other line here is *forward* (structure → property). This one runs it
+backwards: name the property you want and recover the structure that produces it,
+each design **round-trip-validated through the forward model** it inverts.
+
+- **Photonic band gap** → quarter-wave stack `(n₁, n₂, f₀)` (analytic + numeric).
+- **Auxetic Poisson ratio** → honeycomb rib angle (negative ν ⇒ re-entrant geometry).
+- **hBN/gapped honeycomb** → sublattice mass and hopping `(Δ, t)`.
+- **Topological phase** (`inverse_ssh.py`) → SSH hoppings `(t₁, t₂)` for a target gap
+  *and* a target invariant, checked three ways (bulk gap, winding number, and the
+  finite-chain edge states — 2 if topological, 0 if trivial).
+- **Honest degeneracy** (`degeneracy.py`): the inverse is many-to-one, so it returns
+  the **family** of structures hitting one target (e.g. photonic bandwidth fixes the
+  index *contrast*, leaving the absolute index free), not a single false-unique answer.
+
+The same idea closes over computation in the sister repo **DRIFT**
+(`inverse_logic.py`): a target Boolean truth table is compiled to QUBO couplings by
+linear feasibility (and XOR is correctly reported as not 2-local, then built by
+composition) — inverse design of a *computation* rather than a material.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/QuantumDrizzy/AETHER/master/figures/inverse_degeneracy.png" alt="inverse-design degeneracy: a family of structures per target" width="720">
+</p>
+
 ### Optimization & Rust core
 Simulated annealing / QUBO (validated against brute-force optima) · Rust
 workspace (`Material`/`Experiment` types, SQLite persistence, CLI, native egui GUI
