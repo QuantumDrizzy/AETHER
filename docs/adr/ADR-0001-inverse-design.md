@@ -63,7 +63,7 @@ Revisit once the optimization-based inverse line is solid and a target needs it.
 ## Action items
 
 1. [x] Photonic, auxetic, hBN inverse modules (round-trip validated).
-2. [ ] **Inverse SSH / topology** — target gap (or a target edge-state count / winding) → hopping parameters.
+2. [x] **Inverse SSH / topology** — target gap + topological phase → (t1,t2); validated 3 ways (bulk gap, winding number, finite-chain edge states).
 3. [ ] **DRIFT inverse-computronium** (cross-repo) — target Boolean truth-table → QUBO couplings (Ising-machine compilation); consumes the temp0r/anneal spine. The computational sibling of inverse materials.
 4. [ ] Handle multi-modal inverses honestly (report the solution set / degeneracy).
 5. [ ] (Later) optimization over richer parameter spaces; a learned surrogate if a real target demands it.
