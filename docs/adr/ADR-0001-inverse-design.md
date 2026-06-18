@@ -65,7 +65,7 @@ Revisit once the optimization-based inverse line is solid and a target needs it.
 1. [x] Photonic, auxetic, hBN inverse modules (round-trip validated).
 2. [x] **Inverse SSH / topology** — target gap + topological phase → (t1,t2); validated 3 ways (bulk gap, winding number, finite-chain edge states).
 3. [x] **DRIFT inverse-computronium** (cross-repo, in `DRIFT/drift/inverse_logic.py`) — target Boolean truth-table → QUBO couplings by LP feasibility (Ising-machine compilation); fed to DRIFT's anneal spine. Honest limit: XOR is not 2-local (detected, recovered by composition). The computational sibling of inverse materials.
-4. [ ] Handle multi-modal inverses honestly (report the solution set / degeneracy).
+4. [x] Handle multi-modal inverses honestly (`research/inverse_design/degeneracy.py`) — generate the solution family (photonic: n1 free / contrast locked; SSH: energy scale free; auxetic: aspect free) and forward-verify every member hits the target. Report the manifold, not a false-unique answer.
 5. [ ] (Later) optimization over richer parameter spaces; a learned surrogate if a real target demands it.
 
 ## References
